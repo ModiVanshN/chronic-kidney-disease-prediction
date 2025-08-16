@@ -1,10 +1,19 @@
 import streamlit as st
 import pickle
 import pandas as pd
+import os
+
+# Safe loading (check if model files exist)
+MODEL_PATH = "model_gbc.pkl"
+SCALER_PATH = "scaler.pkl"
+
+if not os.path.exists(MODEL_PATH) or not os.path.exists(SCALER_PATH):
+    st.error("❌ Model or Scaler files are missing. Please upload them to the project folder.")
+    st.stop()
 
 # Load model & scaler
-scaler = pickle.load(open("scaler.pkl", "rb"))
-model = pickle.load(open("model_gbc.pkl", "rb"))
+scaler = pickle.load(open(SCALER_PATH, "rb"))
+model = pickle.load(open(MODEL_PATH, "rb"))
 
 # Prediction function
 def predict_chronic_disease(age, bp, sg, al, hemo, sc, htn, dm, cad, appet, pc):
@@ -33,8 +42,10 @@ def predict_chronic_disease(age, bp, sg, al, hemo, sc, htn, dm, cad, appet, pc):
 # ----------------------------
 # Streamlit UI
 # ----------------------------
+st.set_page_config(page_title="CKD Predictor", page_icon="🩺", layout="centered")
+
 st.title("🩺 Chronic Kidney Disease Predictor")
-st.write("Enter patient details to check CKD risk")
+st.markdown("Enter patient details below to check CKD risk.")
 
 # Input fields
 age   = st.number_input("Age (years)", min_value=1, max_value=100, value=45)
@@ -51,6 +62,6 @@ appet = st.selectbox("Appetite", ["good", "poor"])
 pc    = st.selectbox("Pus Cell", ["normal", "abnormal"])
 
 # Predict button
-if st.button("Predict CKD Risk"):
+if st.button("🔮 Predict CKD Risk"):
     result = predict_chronic_disease(age, bp, sg, al, hemo, sc, htn, dm, cad, appet, pc)
-    st.subheader(result)
+    st.success(result)
